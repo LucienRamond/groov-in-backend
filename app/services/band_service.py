@@ -6,14 +6,14 @@ from flask_restful import fields, marshal_with
 from app.model.band import Band
 from app.utils.JwtToken import validate_token
 
-leaderModel = {
+userModel = {
     "id": fields.Integer, 
     "name": fields.String
     }
 bandModel = {
     "id": fields.Integer, 
     "name": fields.String, 
-    "leader": fields.Nested(leaderModel)
+    "created_by": fields.Nested(userModel)
     }
 
 class BandService():
@@ -57,14 +57,13 @@ class BandService():
     @validate_token
     @marshal_with(bandModel)
     def get_my_bands_service():
-        bands_query = Band.query.filter_by(user_id=g.user['id']).join(User) 
+        bands_query = Band.query.filter_by(user_id=g.user['id']).join(User)
         bands = [{
             "id":band.id, 
             "name":band.name, 
-            "leader": {
+            "created_by":{
                 "id":band.user.id,
-                "name":band.user.name
-                }
+                "name":band.user.name}
             } for band in bands_query]
         
         return bands
@@ -75,7 +74,7 @@ class BandService():
         bands = [{
             "id":band.id, 
             "name":band.name, 
-            "leader": {
+            "created_by": {
                 "id":band.user.id,
                 "name":band.user.name
                 }

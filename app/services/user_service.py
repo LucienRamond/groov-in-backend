@@ -78,8 +78,8 @@ class UserService():
                 "id":band.id,
                 "name":band.name,
                 "leader": {
-                    "id":band.use.id,
-                    "name":band.use.name
+                    "id":band.user.id,
+                    "name":band.user.name
                 }} for band in user.bands
             ]
         } for user in users_query]
