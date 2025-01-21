@@ -12,7 +12,7 @@ from app.utils.JwtToken import generate_token, validate_token
 SECRET = os.environ.get('SECRET_KEY')
 
 creatorModel = {"id": fields.Integer, "name": fields.String}
-bandModel = {"id": fields.Integer, "name": fields.String, "creator": fields.Nested(creatorModel)}
+bandModel = {"id": fields.Integer, "name": fields.String, "created_by": fields.Nested(creatorModel)}
 userModel = {"id": fields.Integer, "name": fields.String, "email": fields.String, "bands": fields.List(fields.Nested(bandModel))}
 
 class UserService():
@@ -62,7 +62,7 @@ class UserService():
             return make_response({"message": "Can be updated only by account owner"}, 404)
         
         user.name = user_data["name"]
-        user.email=user_data["email"]
+        user.email = user_data["email"]
         db.session.commit()
 
         return make_response({"message": "User successfully updated"})
@@ -77,7 +77,7 @@ class UserService():
             "bands":[{
                 "id":band.id,
                 "name":band.name,
-                "leader": {
+                "created_by": {
                     "id":band.user.id,
                     "name":band.user.name
                 }} for band in user.bands

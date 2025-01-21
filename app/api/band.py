@@ -23,3 +23,8 @@ def get_my_band():
 @band_route.route('/bands', methods=['GET'])
 def get_bands():
     return BandService.get_bands_service()
+
+@band_route.route('/bands/edit', methods=['PUT'])
+def edit_band():
+    data = request.get_json()
+    return BandService.edit_band_service(data)

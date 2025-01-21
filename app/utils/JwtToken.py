@@ -19,16 +19,17 @@ def validate_token(func):
         
         try:
             decoded_token = jwt.decode(token, SECRET, algorithms=["HS256"])
-            user_query = User.query.filter_by(id=decoded_token['_id']).outerjoin(Band).first()
+            user_query = User.query.filter_by(id=decoded_token['_id']).first()
             
             user = {
                 "name":user_query.name, 
                 "email":user_query.email, 
                 "id":user_query.id, 
-                "bands": 
-                    [{"id":band.id, "name":band.name, "created_by":band.user_id } for band in user_query.bands if user_query.bands]
-                }            
+                "bands":user_query.bands                    
+                }
+                   
             g.user = user
+            
             return func(*args, **kwargs)
         except Exception as e:
             return make_response({"message": str(e)}, 403)   

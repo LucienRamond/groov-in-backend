@@ -10,9 +10,10 @@ db = SQLAlchemy(app)
 
 from app.model.band import Band
 from app.model.user import User
+from app.model.band_members import BandMembers
 
-# with app.app_context():
-#     db.create_all()
+with app.app_context():
+    db.create_all()
 
 CORS(app, supports_credentials=True)
 
