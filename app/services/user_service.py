@@ -109,7 +109,7 @@ class UserService():
                 payload = {"_id": str(user.id), 'exp': datetime.datetime.now() + datetime.timedelta(minutes=60)}
                 if check_password_hash(user.password_hash, user_credentials["password"]):
                     token = generate_token(payload, SECRET)
-                    response = make_response({"message": "Login Successfully"}, 200)
+                    response = make_response({"id": user.id, "name": user.name}, 200)
                     response.set_cookie("token",token)
                     return response
                 else:
