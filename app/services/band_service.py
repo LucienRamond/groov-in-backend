@@ -4,11 +4,11 @@ from app import db
 from flask import g, make_response
 from flask_restful import fields, marshal_with
 from app.model.band import Band
-from app.utils.JwtToken import validate_token
+from sqlalchemy.orm import contains_eager
 
 userModel = {
     "id": fields.Integer, 
-    "name": fields.String
+    "name": fields.String,
     }
 bandModel = {
     "id": fields.Integer, 
@@ -18,14 +18,13 @@ bandModel = {
     }
 
 class BandService():
-    @validate_token
-    def create_band_service(band_data):
-        band = Band(name=band_data["name"], created_by=g.user["id"])
+
+    def create_band_service(band_data, user_id):
+        band = Band(name=band_data["name"], created_by=user_id)
         db.session.add(band)
         db.session.commit()
         return make_response({"message": "Band successfully created"}, 200)
 
-    @validate_token
     def delete_band_service(band_id):
         band = Band.query.filter_by(id=band_id).first()
         user = User.query.filter_by(id=g.user["id"]).first()
@@ -38,57 +37,58 @@ class BandService():
         
         return make_response({"message": "Band successfully deleted"}, 200)
     
+    marshal_with(bandModel)
     def get_band_service(band_id):
-        band_query = Band.query.filter_by(id=band_id).join(User).first()
-        users = User.query.all()
+        band = Band.query.filter_by(id=band_id).join(BandMembers).first()
+        bands = BandMembers.query.join(Band, Band.id == BandMembers.band_id).options(contains_eager(BandMembers.bands)).all()
 
-        if not band_query:
-            return make_response({"message": "Band not found"}, 404)
-        
-        band = {
-            "id":band_query.id, 
-            "name":band_query.name, 
-            "created_by": {
-                "id":band_query.user.id,
-                "name":band_query.user.name
-                },
-            # A FAIRE !
-            "members": [[{"name" : user.name} for user in users if user.id == id] for id in band_query.members_ids]
+        response = {
+            "id":band.id, 
+            "name":band.name, 
+            "created_by": [{
+                "id":user.users.id,
+                "name":user.users.name
+                } for user in band.members if user.users.id == user.bands.created_by],
+            "members": [{
+                'id': member.users.id, 
+                'name': member.users.name, 
+                'bands': [{
+                    'id': band.bands.id, 
+                    "name": band.bands.name
+                    } for band in bands if band.user_id == member.users.id]
+                } for member in band.members]
             }
-
-        return band
+        
+        return response
     
-    @validate_token
     @marshal_with(bandModel)
-    def get_my_bands_service():
-        bands_query = Band.query.filter_by(created_by=g.user['id']).join(User)
-        users_query = User.query.all()
+    def get_my_bands_service(user_id):
+        bands = Band.query.join(BandMembers).filter_by(user_id=user_id)
 
         bands = [{
             "id":band.id, 
             "name":band.name, 
-            "created_by":{
-                "id":band.user.id,
-                "name":band.user.name
-                },
-            'members': [{'id': member.id, 'name': member.name} for member in users_query]
-            } for band in bands_query]
+            "created_by": [{
+                "id":user.users.id,
+                "name":user.users.name
+                } for user in band.members if user.users.id == band.created_by],
+            "members": [{'id': member.users.id, 'name': member.users.name} for member in band.members]
+            } for band in bands]
         
         return bands
     
     @marshal_with(bandModel)
     def get_bands_service():
-        bands_query = Band.query.outerjoin(BandMembers, BandMembers.band_id == Band.id).join(User, User.id == Band.created_by)
-        users_query = User.query.all()
+        bands_query = Band.query.all()
 
         bands = [{
             "id":band.id, 
             "name":band.name, 
-            "created_by": {
-                "id":band.user.id,
-                "name":band.user.name
-                },
-            "members": [{'id': member.id, 'name': member.name} for member in users_query]
+            "created_by": [{
+                "id":user.users.id,
+                "name":user.users.name
+                } for user in band.members if user.users.id == band.created_by],
+            "members": [{'id': member.users.id, 'name': member.users.name} for member in band.members]
             } for band in bands_query]
         
         return bands

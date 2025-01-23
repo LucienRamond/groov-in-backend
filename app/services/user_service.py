@@ -1,59 +1,55 @@
 import os
-
 from app.model.band import Band
 from app import db
+from app.model.band_members import BandMembers
 from app.model.user import User
 from flask import app, make_response, g
 from flask_restful import fields, marshal_with
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
 from app.utils.JwtToken import generate_token, validate_token
+from sqlalchemy.orm import contains_eager
 
 SECRET = os.environ.get('SECRET_KEY')
 
-creatorModel = {"id": fields.Integer, "name": fields.String}
-bandModel = {"id": fields.Integer, "name": fields.String, "created_by": fields.Nested(creatorModel)}
+bandModel = {"id": fields.Integer, "name": fields.String}
 userModel = {"id": fields.Integer, "name": fields.String, "email": fields.String, "bands": fields.List(fields.Nested(bandModel))}
 
 class UserService():
     @marshal_with(userModel)
     def get_user_service(id):
-        user_query = User.query.filter_by(id=id).join(Band).first()
+        user = User.query.filter_by(id=id).join(BandMembers).first()
+
         user = {
-            "id":user_query.id,
-            "name":user_query.name,
-            "email":user_query.email,
+            "id":user.id,
+            "name":user.name,
+            "email":user.email,
             "bands":[{
-                "id":band.id,
-                "name":band.name,
-                "leader": {
-                    "id":band.user.id,
-                    "name":band.user.name
-                }} for band in user_query.bands
-            ]
+                'id':band.bands.id,
+                'name':band.bands.name} for band in user.bands]
         }
 
         return user
     
-    @validate_token    
     @marshal_with(userModel)
-    def get_current_user_service():
-        user_query = User.query.filter_by(id=g.user["id"]).join(Band).first()
-        user = {
-            "id":user_query.id,
-            "name":user_query.name,
-            "email":user_query.email,
-            "bands":[{
-                "id":band.id,
-                "name":band.name,
-                "leader": {
-                    "id":band.user.id,
-                    "name":band.user.name
-                }} for band in user_query.bands
-            ]
-        }
+    def get_current_user_service(user_id):
+        user = User.query.filter_by(id=user_id).join(BandMembers).first()
+        bands = BandMembers.query.join(Band, Band.id == BandMembers.band_id).options(contains_eager(BandMembers.bands)).all()
 
-        return user
+        response = {
+            "id":user.id, 
+            "name":user.name, 
+            "email":user.email,
+            "members": [{
+                'id': member.users.id, 
+                'name': member.users.name, 
+                'bands': [{
+                    'id': band.bands.id, 
+                    "name": band.bands.name
+                    } for band in bands if band.user_id == member.users.id]
+                } for member in user.bands]
+            }
+        return response
     
     @validate_token
     def edit_current_user_service(user_data):
@@ -69,21 +65,18 @@ class UserService():
     
     @marshal_with(userModel)
     def get_users_service():
-        users_query = User.query.all()
-        users = [{
+        users = User.query.all()
+        response = [{
             "id":user.id,
             "name":user.name,
             "email":user.email,
             "bands":[{
-                "id":band.id,
-                "name":band.name,
-                "created_by": {
-                    "id":band.user.id,
-                    "name":band.user.name
-                }} for band in user.bands
+                "id":band.bands.id,
+                "name":band.bands.name,
+                } for band in user.bands
             ]
-        } for user in users_query]
-        return users
+        } for user in users]
+        return response
     
     def signup_service(user_data):
         try:
