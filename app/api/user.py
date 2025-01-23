@@ -25,7 +25,6 @@ def logout():
 def get_user(user_id):
     return UserService.get_user_service(user_id)
 
-
 @user_route.route('/user/@me', methods=['GET'])
 @validate_token
 def get_current_user():

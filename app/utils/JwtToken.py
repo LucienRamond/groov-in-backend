@@ -1,8 +1,8 @@
 import os
 from flask import make_response, request, g
 import jwt
+from functools import wraps
 
-from app.model.band import Band
 from app.model.user import User
 
 SECRET = os.environ.get('SECRET_KEY')
@@ -11,6 +11,7 @@ def generate_token(payload, secret):
     return jwt.encode(payload, secret, algorithm="HS256")
 
 def validate_token(func):
+    @wraps(func)
     def wrapper(*args, **kwargs):
         try:
             token = request.cookies.get('token')

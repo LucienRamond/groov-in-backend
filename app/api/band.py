@@ -4,21 +4,21 @@ from app.utils.JwtToken import validate_token
 
 band_route = Blueprint('band_route', __name__)
 
-@validate_token
+
 @band_route.route('/bands/create', methods=['POST'])
+@validate_token
 def create():
     data = request.get_json()
-    return BandService.create_band_service(data)
+    return BandService.create_band_service(data, g.user["id"])
 
-@validate_token
 @band_route.route('/bands/delete/<int:id>', methods=['DELETE'])
+@validate_token
 def delete(id):
     return BandService.delete_band_service(id)
 
 @band_route.route('/bands/<int:band_id>', methods=['GET'])
 def get_band(band_id):
     return BandService.get_band_service(band_id)
-
 
 @band_route.route('/bands/my-bands', methods=['GET'])
 @validate_token
@@ -29,8 +29,8 @@ def get_my_band():
 def get_bands():
     return BandService.get_bands_service()
 
-@validate_token
 @band_route.route('/bands/edit', methods=['PUT'])
+@validate_token
 def edit_band():
     data = request.get_json()
     return BandService.edit_band_service(data, g.user['id'])

@@ -13,7 +13,7 @@ from sqlalchemy.orm import contains_eager
 SECRET = os.environ.get('SECRET_KEY')
 
 bandModel = {"id": fields.Integer, "name": fields.String}
-userModel = {"id": fields.Integer, "name": fields.String, "email": fields.String, "bands": fields.List(fields.Nested(bandModel))}
+userModel = {"id": fields.Integer, "name": fields.String, "description": fields.String, "email": fields.String, "bands": fields.List(fields.Nested(bandModel))}
 
 class UserService():
     @marshal_with(userModel)
@@ -24,6 +24,7 @@ class UserService():
             "id":user.id,
             "name":user.name,
             "email":user.email,
+            "description":user.description,
             "bands":[{
                 'id':band.bands.id,
                 'name':band.bands.name} for band in user.bands]
@@ -40,6 +41,7 @@ class UserService():
             "id":user.id, 
             "name":user.name, 
             "email":user.email,
+            "description":user.description,
             "members": [{
                 'id': member.users.id, 
                 'name': member.users.name, 
@@ -70,6 +72,7 @@ class UserService():
             "id":user.id,
             "name":user.name,
             "email":user.email,
+            "description":user.description,
             "bands":[{
                 "id":band.bands.id,
                 "name":band.bands.name,

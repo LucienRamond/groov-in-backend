@@ -12,7 +12,8 @@ userModel = {
     }
 bandModel = {
     "id": fields.Integer, 
-    "name": fields.String, 
+    "name": fields.String,
+    "description": fields.String,
     "created_by": fields.Nested(userModel),
     "members": fields.List(fields.Nested(userModel))
     }
@@ -20,8 +21,11 @@ bandModel = {
 class BandService():
 
     def create_band_service(band_data, user_id):
-        band = Band(name=band_data["name"], created_by=user_id)
+        band = Band(name=band_data["name"], description=band_data["description"], created_by=user_id)
         db.session.add(band)
+        db.session.commit()
+        band_members = BandMembers(band_id=band.id,user_id=user_id)
+        db.session.add(band_members)
         db.session.commit()
         return make_response({"message": "Band successfully created"}, 200)
 
@@ -44,7 +48,8 @@ class BandService():
 
         response = {
             "id":band.id, 
-            "name":band.name, 
+            "name":band.name,
+            "description": band.description,
             "created_by": [{
                 "id":user.users.id,
                 "name":user.users.name
@@ -67,7 +72,8 @@ class BandService():
 
         bands = [{
             "id":band.id, 
-            "name":band.name, 
+            "name":band.name,
+            "description": band.description,
             "created_by": [{
                 "id":user.users.id,
                 "name":user.users.name
@@ -83,7 +89,8 @@ class BandService():
 
         bands = [{
             "id":band.id, 
-            "name":band.name, 
+            "name":band.name,
+            "description": band.description, 
             "created_by": [{
                 "id":user.users.id,
                 "name":user.users.name
