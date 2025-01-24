@@ -53,17 +53,21 @@ class UserService():
             }
         return response
     
-    @validate_token
-    def edit_current_user_service(user_data):
-        user = User.query.filter_by(id=g.user["id"]).first()
-        if user.id != user_data["id"]:
+    def edit_current_user_service(user_data, user_id):
+
+        if user_id != user_data["id"]:
             return make_response({"message": "Can be updated only by account owner"}, 404)
-        
+          
+        user = User.query.filter_by(id=user_id).first()
+
         user.name = user_data["name"]
         user.email = user_data["email"]
+        user.description = user_data["description"]
         db.session.commit()
 
-        return make_response({"message": "User successfully updated"})
+        response = make_response({"id": user.id, "name": user.name}, 200)
+
+        return response
     
     @marshal_with(userModel)
     def get_users_service():

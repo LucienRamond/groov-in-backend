@@ -1,5 +1,4 @@
 from flask import Blueprint, g, request
-from flask_cors import cross_origin
 from app.services.user_service import UserService
 from app.utils.JwtToken import validate_token
 
@@ -11,13 +10,11 @@ def signup():
     return UserService.signup_service(data)
 
 @user_route.route('/user/login', methods=['POST'])
-@cross_origin(supports_credentials=True)
 def login():
     data = request.get_json()
     return UserService.login_service(data)
 
 @user_route.route('/user/logout', methods=['GET'])
-@cross_origin(supports_credentials=True)
 def logout():
     return UserService.logout_service()
 
@@ -31,9 +28,10 @@ def get_current_user():
     return UserService.get_current_user_service(g.user["id"])
 
 @user_route.route('/user/edit', methods=['PATCH'])
+@validate_token
 def edit_current_user():
     data = request.get_json()
-    return UserService.edit_current_user_service(data)
+    return UserService.edit_current_user_service(data, g.user["id"])
 
 @user_route.route('/users', methods=['GET'])
 def get_users():
