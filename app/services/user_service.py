@@ -7,32 +7,36 @@ from flask import app, make_response, g
 from flask_restful import fields, marshal_with
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
+from app.model.user_instruments import UserInstruments
 from app.utils.JwtToken import generate_token, validate_token
 from sqlalchemy.orm import contains_eager
 
 SECRET = os.environ.get('SECRET_KEY')
 
 bandModel = {"id": fields.Integer, "name": fields.String}
-userModel = {"id": fields.Integer, "name": fields.String, "description": fields.String, "email": fields.String, "bands": fields.List(fields.Nested(bandModel))}
+instrumentModel = {"id": fields.Integer, "name": fields.String}
+userModel = {"id": fields.Integer, "name": fields.String, "description": fields.String, "email": fields.String, "bands": fields.List(fields.Nested(bandModel)), "instruments": fields.List(fields.Nested(instrumentModel))}
 
 class UserService():
     @marshal_with(userModel)
     def get_user_service(id):
-        user = User.query.filter_by(id=id).join(BandMembers).first()
-
-        if not user:
-            user = User.query.filter_by(id=id).first()
+        user = User.query.filter_by(id=id).first()
 
         bands = []
+        instruments = []
 
         if user.bands :
             bands = [{'id':band.bands.id, 'name':band.bands.name} for band in user.bands]
+
+        if user.instruments:
+            instruments = [{'id':instrument.instruments.id, 'name':instrument.instruments.name} for instrument in user.instruments]
 
         user = {
             "id":user.id,
             "name":user.name,
             "email":user.email,
             "description":user.description,
+            "instruments":instruments,
             "bands":bands
         }
 
@@ -40,24 +44,27 @@ class UserService():
     
     @marshal_with(userModel)
     def get_current_user_service(user_id):
-        user = User.query.filter_by(id=user_id).join(BandMembers).first()
-        bands = BandMembers.query.join(Band, Band.id == BandMembers.band_id).options(contains_eager(BandMembers.bands)).all()
+        user = User.query.filter_by(id=user_id).first()
 
-        response = {
-            "id":user.id, 
-            "name":user.name, 
+        bands = []
+        instruments = []
+
+        if user.bands :
+            bands = [{'id':band.bands.id, 'name':band.bands.name} for band in user.bands]
+
+        if user.instruments:
+            instruments = [{'id':instrument.instruments.id, 'name':instrument.instruments.name} for instrument in user.instruments]
+
+        user = {
+            "id":user.id,
+            "name":user.name,
             "email":user.email,
             "description":user.description,
-            "members": [{
-                'id': member.users.id, 
-                'name': member.users.name, 
-                'bands': [{
-                    'id': band.bands.id, 
-                    "name": band.bands.name
-                    } for band in bands if band.user_id == member.users.id]
-                } for member in user.bands]
-            }
-        return response
+            "instruments":instruments,
+            "bands":bands
+        }
+
+        return user
     
     def edit_current_user_service(user_data, user_id):
 
@@ -78,17 +85,24 @@ class UserService():
     @marshal_with(userModel)
     def get_users_service():
         users = User.query.all()
+
         response = [{
             "id":user.id,
             "name":user.name,
             "email":user.email,
             "description":user.description,
+            "instruments":[{
+                "id":band.instruments.id,
+                "name":band.instruments.name,
+                } for band in user.instruments if user.instruments
+            ],
             "bands":[{
                 "id":band.bands.id,
                 "name":band.bands.name,
-                } for band in user.bands
+                } for band in user.bands if user.bands
             ]
         } for user in users]
+
         return response
     
     def signup_service(user_data):

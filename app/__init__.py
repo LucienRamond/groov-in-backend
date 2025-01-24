@@ -10,7 +10,9 @@ db = SQLAlchemy(app)
 
 from app.model.band import Band
 from app.model.user import User
+from app.model.instrument import Instrument
 from app.model.band_members import BandMembers
+from app.model.user_instruments import UserInstruments
 
 with app.app_context():
     db.create_all()
