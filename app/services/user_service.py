@@ -2,6 +2,7 @@ import os
 from app.model.band import Band
 from app import db
 from app.model.band_members import BandMembers
+from app.model.instrument import Instrument
 from app.model.user import User
 from flask import app, make_response, g
 from flask_restful import fields, marshal_with
@@ -73,9 +74,19 @@ class UserService():
           
         user = User.query.filter_by(id=user_id).first()
 
+        for instrument in user.instruments:
+            db.session.delete(instrument)
+
+        breakpoint()  
+
+        for instrument_id in user_data["instruments"]:
+            user_instrument = UserInstruments(user_id=user_id, instrument_id=instrument_id)
+            db.session.add(user_instrument)
+
         user.name = user_data["name"]
         user.email = user_data["email"]
         user.description = user_data["description"]
+
         db.session.commit()
 
         response = make_response({"id": user.id, "name": user.name}, 200)

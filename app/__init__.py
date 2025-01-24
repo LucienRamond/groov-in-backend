@@ -23,3 +23,5 @@ from app.api.user import user_route
 app.register_blueprint(user_route)
 from app.api.band import band_route
 app.register_blueprint(band_route)
+from app.api.instrument import instrument_route
+app.register_blueprint(instrument_route)
