@@ -20,14 +20,20 @@ class UserService():
     def get_user_service(id):
         user = User.query.filter_by(id=id).join(BandMembers).first()
 
+        if not user:
+            user = User.query.filter_by(id=id).first()
+
+        bands = []
+
+        if user.bands :
+            bands = [{'id':band.bands.id, 'name':band.bands.name} for band in user.bands]
+
         user = {
             "id":user.id,
             "name":user.name,
             "email":user.email,
             "description":user.description,
-            "bands":[{
-                'id':band.bands.id,
-                'name':band.bands.name} for band in user.bands]
+            "bands":bands
         }
 
         return user
