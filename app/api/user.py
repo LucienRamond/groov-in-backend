@@ -27,6 +27,12 @@ def get_user(user_id):
 def get_current_user():
     return UserService.get_current_user_service(g.user["id"])
 
+@user_route.route('/user/reset-password', methods=['PATCH'])
+@validate_token
+def reset_user_password():
+    data = request.get_json()
+    return UserService.reset_password_service(data, g.user["id"])
+
 @user_route.route('/user/edit', methods=['PATCH'])
 @validate_token
 def edit_current_user():

@@ -153,3 +153,18 @@ class UserService():
         response = make_response({'message': 'Successfully logged out'}, 200)
         response.delete_cookie("token")
         return response
+        
+    def reset_password_service(password_data, user_id):
+        if user_id != password_data["id"] :
+            return make_response({'message': "Only updating by logged user"}, 403)
+
+        user = User.query.filter_by(id=user_id).first()
+
+        if not user:
+            return make_response({'message': "User not found"}, 403)
+        
+        if check_password_hash(user.password_hash, password_data["old_password"]):
+            user.password_hash = generate_password_hash(password_data["new_password"])
+            db.session.commit()
+
+        return make_response({'message': 'Successfully update password'}, 200)
