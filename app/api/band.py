@@ -1,5 +1,6 @@
 from flask import Blueprint, g, request
 from app.services.band_service import BandService
+from app.services.user_service import UserService
 from app.utils.JwtToken import validate_token
 
 band_route = Blueprint('band_route', __name__)
@@ -23,7 +24,7 @@ def get_band(band_id):
 @band_route.route('/bands/my-bands', methods=['GET'])
 @validate_token
 def get_my_band():
-    return BandService.get_my_bands_service(g.user['id'])
+    return UserService.get_user_bands(g.user['id'])
 
 @band_route.route('/bands', methods=['GET'])
 def get_bands():

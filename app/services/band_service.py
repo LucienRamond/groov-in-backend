@@ -8,7 +8,7 @@ from sqlalchemy.orm import contains_eager
 class BandService():
     def get_bands_with_members_query():
         return (
-            Band.query
+            Band.query          
             .outerjoin(Band.members)
             .outerjoin(BandMembers.users).options(contains_eager(Band.members).contains_eager(BandMembers.users))
         )
@@ -69,25 +69,6 @@ class BandService():
                 } for member in band.members]
             }
     
-    def get_my_bands_service(user_id):
-        bands = (
-            BandService.get_bands_with_members_query()
-            .filter(User.id == user_id)
-            .offset(0)
-            .limit(20)
-        )
-
-        return [{
-            "id":band.id, 
-            "name":band.name,
-            "description": band.description,
-            "created_by": [{
-                "id":user.users.id,
-                "name":user.users.name
-                } for user in band.members if user.users.id == band.created_by],
-            "members": [{'id': member.users.id, 'name': member.users.name} for member in band.members]
-            } for band in bands]
-    
     def get_all_bands():
         bands = (
             BandService.get_bands_with_members_query()
@@ -122,3 +103,4 @@ class BandService():
         db.session.commit()
         
         return make_response({"message":"Band successfully updated"}, 200)
+    

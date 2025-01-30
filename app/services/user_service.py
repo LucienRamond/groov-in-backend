@@ -156,3 +156,33 @@ class UserService():
             return make_response({'message': 'Invalid old password'}, 403)
 
         return make_response({'message': 'Successfully updated password'}, 200)
+    
+    def get_user_bands(user_id):
+        users = (
+            UserService.get_users_with_bands_and_instruments_query()
+            .filter(User.id == user_id)
+            .all()
+        )
+
+        if len(users) == 0:
+            return make_response({"message": f"User {user_id} not found "}, 404)
+
+        user = users[0]
+
+        return [{
+            "id":band.bands.id, 
+            "name":band.bands.name,
+            "description": band.bands.description,
+            "created_by": [{
+                "id":user.users.id,
+                "name":user.users.name
+                } for user in band.bands.members if user.users.id == user.bands.created_by],
+            "members": [{
+                'id': member.users.id, 
+                'name': member.users.name, 
+                'bands': [{
+                    'id': band.bands.id, 
+                    "name": band.bands.name
+                    } for band in member.users.bands]
+                } for member in band.bands.members]
+            } for band in user.bands]
