@@ -4,8 +4,7 @@ from app import db
 from app.model.band_members import BandMembers
 from app.model.instrument import Instrument
 from app.model.user import User
-from flask import app, make_response, g
-from flask_restful import fields, marshal_with
+from flask import make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
 from app.model.user_instruments import UserInstruments
@@ -14,74 +13,60 @@ from sqlalchemy.orm import contains_eager
 
 SECRET = os.environ.get('SECRET_KEY')
 
-bandModel = {"id": fields.Integer, "name": fields.String}
-instrumentModel = {"id": fields.Integer, "name": fields.String}
-userModel = {"id": fields.Integer, "name": fields.String, "description": fields.String, "email": fields.String, "bands": fields.List(fields.Nested(bandModel)), "instruments": fields.List(fields.Nested(instrumentModel))}
-
 class UserService():
-    @marshal_with(userModel)
-    def get_user_service(id):
-        user = User.query.filter_by(id=id).first()
+    def get_users_with_bands_and_instruments_query():
+        return (
+            User.query
+            .outerjoin(User.bands)
+            .outerjoin(BandMembers.bands).options(contains_eager(User.bands).contains_eager(BandMembers.bands))            
+            .outerjoin(User.instruments)
+            .outerjoin(UserInstruments.instruments).options(contains_eager(User.instruments).contains_eager(UserInstruments.instruments))
+        )
 
-        bands = []
-        instruments = []
+    def get_user_by_id(user_id):
+        users = (
+            UserService.get_users_with_bands_and_instruments_query()
+            .filter(User.id == user_id)
+            .all()
+        )
 
-        if user.bands :
-            bands = [{'id':band.bands.id, 'name':band.bands.name} for band in user.bands]
+        if len(users) == 0:
+            return make_response({"message": f"User {user_id} not found "}, 404)
 
-        if user.instruments:
-            instruments = [{'id':instrument.instruments.id, 'name':instrument.instruments.name} for instrument in user.instruments]
+        user = users[0]
 
-        user = {
+        return {
             "id":user.id,
             "name":user.name,
             "email":user.email,
             "description":user.description,
-            "instruments":instruments,
-            "bands":bands
+            "instruments": [{
+                'id':instrument.instruments.id, 
+                'name':instrument.instruments.name
+            } for instrument in user.instruments],
+            "bands":[{
+                'id':band.bands.id, 
+                'name':band.bands.name
+            } for band in user.bands]
         }
-
-        return user
     
-    @marshal_with(userModel)
-    def get_current_user_service(user_id):
-        user = User.query.filter_by(id=user_id).first()
-
-        bands = []
-        instruments = []
-
-        if user.bands :
-            bands = [{'id':band.bands.id, 'name':band.bands.name} for band in user.bands]
-
-        if user.instruments:
-            instruments = [{'id':instrument.instruments.id, 'name':instrument.instruments.name} for instrument in user.instruments]
-
-        user = {
-            "id":user.id,
-            "name":user.name,
-            "email":user.email,
-            "description":user.description,
-            "instruments":instruments,
-            "bands":bands
-        }
-
-        return user
-    
-    def edit_current_user_service(user_data, user_id):
+    def update_user(user_id, user_data):
 
         if user_id != user_data["id"]:
-            return make_response({"message": "Can be updated only by account owner"}, 404)
+            return make_response({"message": "Can be updated only by account owner"}, 403)
           
         user = User.query.filter_by(id=user_id).first()
 
+        # TODO remove only instruments to remove
+        # TODO remove all instruments in one query(delete in)
         for instrument in user.instruments:
             db.session.delete(instrument)
 
-        breakpoint()  
-
+        # TODO remove only instruments to remove
+        # TODO remove only instruments in one query
         for instrument_id in user_data["instruments"]:
             user_instrument = UserInstruments(user_id=user_id, instrument_id=instrument_id)
-            db.session.add(user_instrument)
+            db.session.add(user_instrument) 
 
         user.name = user_data["name"]
         user.email = user_data["email"]
@@ -93,11 +78,14 @@ class UserService():
 
         return response
     
-    @marshal_with(userModel)
-    def get_users_service():
-        users = User.query.all()
+    def get_all_users():
+        users = (
+            UserService.get_users_with_bands_and_instruments_query()
+            .offset(0)
+            .limit(20)
+        )
 
-        response = [{
+        return [{
             "id":user.id,
             "name":user.name,
             "email":user.email,
@@ -113,8 +101,6 @@ class UserService():
                 } for band in user.bands if user.bands
             ]
         } for user in users]
-
-        return response
     
     def signup_service(user_data):
         try:
@@ -166,5 +152,7 @@ class UserService():
         if check_password_hash(user.password_hash, password_data["old_password"]):
             user.password_hash = generate_password_hash(password_data["new_password"])
             db.session.commit()
+        else:
+            return make_response({'message': 'Invalid old password'}, 403)
 
-        return make_response({'message': 'Successfully update password'}, 200)
+        return make_response({'message': 'Successfully updated password'}, 200)

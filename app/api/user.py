@@ -20,12 +20,12 @@ def logout():
 
 @user_route.route('/user/<int:user_id>', methods=['GET'])
 def get_user(user_id):
-    return UserService.get_user_service(user_id)
+    return UserService.get_user_by_id(user_id)
 
 @user_route.route('/user/@me', methods=['GET'])
 @validate_token
 def get_current_user():
-    return UserService.get_current_user_service(g.user["id"])
+    return UserService.get_user_by_id(g.user["id"])
 
 @user_route.route('/user/reset-password', methods=['PATCH'])
 @validate_token
@@ -37,8 +37,8 @@ def reset_user_password():
 @validate_token
 def edit_current_user():
     data = request.get_json()
-    return UserService.edit_current_user_service(data, g.user["id"])
+    return UserService.update_user(g.user["id"], data)
 
 @user_route.route('/users', methods=['GET'])
 def get_users():
-    return UserService.get_users_service()
+    return UserService.get_all_users()

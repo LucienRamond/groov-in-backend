@@ -18,7 +18,7 @@ def delete(id):
 
 @band_route.route('/bands/<int:band_id>', methods=['GET'])
 def get_band(band_id):
-    return BandService.get_band_service(band_id)
+    return BandService.get_band_by_id(band_id)
 
 @band_route.route('/bands/my-bands', methods=['GET'])
 @validate_token
@@ -27,7 +27,7 @@ def get_my_band():
 
 @band_route.route('/bands', methods=['GET'])
 def get_bands():
-    return BandService.get_bands_service()
+    return BandService.get_all_bands()
 
 @band_route.route('/bands/edit', methods=['PUT'])
 @validate_token
