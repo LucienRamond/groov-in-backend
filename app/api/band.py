@@ -11,10 +11,10 @@ def create():
     data = request.get_json()
     return BandService.create_band_service(data, g.user["id"])
 
-@band_route.route('/bands/delete/<int:id>', methods=['DELETE'])
+@band_route.route('/bands/delete/<int:band_id>', methods=['DELETE'])
 @validate_token
-def delete(id):
-    return BandService.delete_band_service(id)
+def delete(band_id):
+    return BandService.delete_band(g.user['id'], band_id)
 
 @band_route.route('/bands/<int:band_id>', methods=['GET'])
 def get_band(band_id):

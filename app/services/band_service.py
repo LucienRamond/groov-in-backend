@@ -26,11 +26,16 @@ class BandService():
 
         return make_response({"message": "Band successfully created"}, 200)
 
-    def delete_band_service(user_id, band_id):
-        band = (
-            Band.query.filter(Band.id == band_id)
-            .first()
+    def delete_band(user_id, band_id):
+        bands = (
+            BandService.get_bands_with_members_query()
+            .filter(Band.id == band_id)
+            .all()
         )
+        band = bands[0]
+
+        if band.created_by != user_id:
+            return make_response({"message": "Can be deleted only by band creator"}, 404)
 
         db.session.delete(band)
         db.session.commit()
