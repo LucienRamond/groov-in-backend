@@ -94,11 +94,14 @@ class BandService():
                 } for member in band.members]
             } for band in bands]
     
-    def edit_band_service(band_data):
+    def update_band(user_id, band_data):
         band = Band.query.filter_by(id=band_data['id']).first()
 
+        if user_id != band.created_by:
+            return make_response({"message": "Can be updated only by account owner"}, 403)
+
         band.name = band_data["name"]
-        band.members_ids = band_data["members_ids"]
+        band.description = band_data["description"]
         
         db.session.commit()
         

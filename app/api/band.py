@@ -30,8 +30,8 @@ def get_my_band():
 def get_bands():
     return BandService.get_all_bands()
 
-@band_route.route('/bands/edit', methods=['PUT'])
+@band_route.route('/bands/edit', methods=['PATCH'])
 @validate_token
 def edit_band():
-    data = request.get_json()
-    return BandService.edit_band_service(data, g.user['id'])
+    band_data = request.get_json()
+    return BandService.update_band(g.user['id'], band_data)
