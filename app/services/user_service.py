@@ -55,15 +55,19 @@ class UserService():
         if user_id != user_data["id"]:
             return make_response({"message": "Can be updated only by account owner"}, 403)
           
-        user = User.query.filter_by(id=user_id).first()
+        users = (
+            UserService.get_users_with_bands_and_instruments_query()
+            .filter(User.id == user_id)
+            .all()
+        )
 
-        # TODO remove only instruments to remove
-        # TODO remove all instruments in one query(delete in)
+        user = users[0]
+
         for instrument in user.instruments:
-            db.session.delete(instrument)
+            if instrument not in user_data['instruments']:
+                db.session.delete(instrument)
 
-        # TODO remove only instruments to remove
-        # TODO remove only instruments in one query
+        # Impossible de faire instrument in user.instruments ? InstrumentedList
         for instrument_id in user_data["instruments"]:
             user_instrument = UserInstruments(user_id=user_id, instrument_id=instrument_id)
             db.session.add(user_instrument) 
