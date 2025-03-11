@@ -15,5 +15,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.PK_SSH }}
           port: 22
-          source: "./dist"
+          source: "./"
           target: "/home/ubuntu/groovin-api/"
+      - name: Restart Gunicorn
+        run: sudo service gunicorn restart
