@@ -1,4 +1,3 @@
-import os
 from app.model.band import Band
 from app import db
 from app.model.band_members import BandMembers
@@ -10,7 +9,6 @@ import datetime
 from app.model.user_instruments import UserInstruments
 from app.utils.JwtToken import generate_token, validate_token
 from sqlalchemy.orm import contains_eager
-from PIL import Image
 
 SECRET = "qwertyuioplkmjnha5526735gbsgsg"
 

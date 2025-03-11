@@ -1,4 +1,3 @@
-import os
 from flask import make_response, request, g
 import jwt
 from functools import wraps
