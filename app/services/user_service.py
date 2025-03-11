@@ -10,8 +10,9 @@ import datetime
 from app.model.user_instruments import UserInstruments
 from app.utils.JwtToken import generate_token, validate_token
 from sqlalchemy.orm import contains_eager
+from PIL import Image
 
-SECRET = os.environ.get('SECRET_KEY')
+SECRET = "qwertyuioplkmjnha5526735gbsgsg"
 
 class UserService():
     def get_users_with_bands_and_instruments_query():
@@ -190,3 +191,7 @@ class UserService():
                     } for band in member.users.bands]
                 } for member in band.bands.members]
             } for band in user.bands]
+    
+    def get_avatar():
+        
+        return {"ok"}

@@ -5,7 +5,7 @@ from functools import wraps
 
 from app.model.user import User
 
-SECRET = os.environ.get('SECRET_KEY')
+SECRET = "qwertyuioplkmjnha5526735gbsgsg"
 
 def generate_token(payload, secret):
     return jwt.encode(payload, secret, algorithm="HS256")
