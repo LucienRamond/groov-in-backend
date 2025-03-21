@@ -39,6 +39,7 @@ class UserService():
             "name":user.name,
             "email":user.email,
             "description":user.description,
+            "avatar_img":user.avatar_img,
             "instruments": [{
                 'id':instrument.instruments.id, 
                 'name':instrument.instruments.name
