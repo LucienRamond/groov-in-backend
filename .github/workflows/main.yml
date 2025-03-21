@@ -17,5 +17,3 @@ jobs:
           port: 22
           source: "./"
           target: "/home/ubuntu/groovin-api/"
-      - name: Restart Gunicorn
-        run: sudo service gunicorn restart
