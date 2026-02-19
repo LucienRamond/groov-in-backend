@@ -1,6 +1,6 @@
 from flask import Blueprint, g, request
-from app.services.user_service import UserService
-from app.utils.JwtToken import validate_token
+from services.user_service import UserService
+from utils.JwtToken import validate_token
 
 user_route = Blueprint('user_route', __name__)
 

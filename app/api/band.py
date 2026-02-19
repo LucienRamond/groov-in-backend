@@ -1,7 +1,7 @@
 from flask import Blueprint, g, request
-from app.services.band_service import BandService
-from app.services.user_service import UserService
-from app.utils.JwtToken import validate_token
+from services.band_service import BandService
+from services.user_service import UserService
+from utils.JwtToken import validate_token
 
 band_route = Blueprint('band_route', __name__)
 

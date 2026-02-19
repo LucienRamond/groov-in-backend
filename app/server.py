@@ -31,5 +31,5 @@ app.register_blueprint(band_route)
 from api.instrument import instrument_route
 app.register_blueprint(instrument_route)
 
-if '__name__' == '__main__':
+if __name__ == '__main__':
     app.run()

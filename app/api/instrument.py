@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from app.services.instrument_service import InstrumentService
+from services.instrument_service import InstrumentService
 
 instrument_route = Blueprint('instrument_route', __name__)
 
