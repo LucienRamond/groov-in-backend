@@ -2,7 +2,7 @@ from flask import make_response, request, g
 import jwt
 from functools import wraps
 
-from app.model.user import User
+from model.user import User
 
 SECRET = "qwertyuioplkmjnha5526735gbsgsg"
 

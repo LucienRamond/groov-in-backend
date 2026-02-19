@@ -1,13 +1,13 @@
-from app.model.band import Band
-from app import db
-from app.model.band_members import BandMembers
-from app.model.instrument import Instrument
-from app.model.user import User
+from model.band import Band
+from server import db
+from model.band_members import BandMembers
+from model.instrument import Instrument
+from model.user import User
 from flask import make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
-from app.model.user_instruments import UserInstruments
-from app.utils.JwtToken import generate_token, validate_token
+from model.user_instruments import UserInstruments
+from utils.JwtToken import generate_token, validate_token
 from sqlalchemy.orm import contains_eager
 
 SECRET = "qwertyuioplkmjnha5526735gbsgsg"

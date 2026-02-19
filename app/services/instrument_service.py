@@ -1,4 +1,4 @@
-from app.model.instrument import Instrument
+from model.instrument import Instrument
 from flask_restful import fields, marshal_with
 
 instrumentModel = { "id":fields.Integer, "name": fields.String}

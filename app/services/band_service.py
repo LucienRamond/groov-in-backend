@@ -1,8 +1,8 @@
-from app.model.band_members import BandMembers
-from app.model.user import User
-from app import db
+from model.band_members import BandMembers
+from model.user import User
+from server import db
 from flask import make_response
-from app.model.band import Band
+from model.band import Band
 from sqlalchemy.orm import contains_eager
 
 class BandService():
