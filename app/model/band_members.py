@@ -1,4 +1,4 @@
-from app import db
+from server import db
 
 class BandMembers(db.Model):
     id = db.Column(db.Integer, primary_key=True)

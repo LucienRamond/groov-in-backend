@@ -1,4 +1,4 @@
-from app import db
+from server import db
 
 class Instrument(db.Model):
     id = db.Column(db.Integer, primary_key=True)
