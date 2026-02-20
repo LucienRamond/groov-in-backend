@@ -78,7 +78,9 @@ class UserService():
 
         db.session.commit()
 
-        response = make_response({"id": user.id, "name": user.name}, 200)
+        updated_user = UserService.get_user_by_id(user.id)
+
+        response = make_response(updated_user, 200)
 
         return response
     
