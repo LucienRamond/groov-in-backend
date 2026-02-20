@@ -1,10 +1,11 @@
 from flask import make_response, request, g
 import jwt
 from functools import wraps
+import os
 
 from model.user import User
 
-SECRET = "qwertyuioplkmjnha5526735gbsgsg"
+SECRET = os.environ.get("SECRET_KEY")
 
 def generate_token(payload, secret):
     return jwt.encode(payload, secret, algorithm="HS256")
