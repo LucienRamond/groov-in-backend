@@ -66,6 +66,8 @@ class UserService():
 
         try:
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+            if user.avatar_img:
+                os.remove(f'{app.config['UPLOAD_FOLDER']}{user.avatar_img}')
             user.avatar_img = file_name
         except Exception as e:
                 return make_response({"message": f'{e}'}, 400)
