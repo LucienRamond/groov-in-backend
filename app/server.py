@@ -10,6 +10,7 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DEPLOY_DATABASE_URI")
+app.config['UPLOAD_FOLDER'] = os.environ.get("UPLOAD_FOLDER")
 
 db = SQLAlchemy(app)
 

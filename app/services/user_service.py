@@ -1,9 +1,12 @@
+import os
+from pathlib import Path
+from server import app
 from model.band import Band
 from server import db
 from model.band_members import BandMembers
 from model.instrument import Instrument
 from model.user import User
-from flask import make_response
+from flask import make_response, send_file
 from werkzeug.security import check_password_hash, generate_password_hash
 import datetime
 from model.user_instruments import UserInstruments
@@ -50,6 +53,27 @@ class UserService():
             } for band in user.bands]
         }
     
+    def get_avatar_by_name(avatar):
+        avatar = Path(f'imgs/{avatar}')
+        return send_file(avatar)
+    
+    def update_user_avatar(user_id, file, file_name):
+        user = (
+            UserService.get_users_with_bands_and_instruments_query()
+            .filter(User.id == user_id)
+            .first()
+        )
+
+        try:
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], file_name))
+            user.avatar_img = file_name
+        except Exception as e:
+                return make_response({"message": f'{e}'}, 400)
+        
+        db.session.commit()
+        
+        return make_response({"avatar_img_name": file_name}, 200)
+    
     def update_user(user_id, user_data):
 
         if user_id != user_data["id"]:
@@ -75,6 +99,7 @@ class UserService():
         user.name = user_data["name"]
         user.email = user_data["email"]
         user.description = user_data["description"]
+        user.avatar_img = user_data["avatar_img"]
 
         db.session.commit()
 
@@ -194,7 +219,3 @@ class UserService():
                     } for band in member.users.bands]
                 } for member in band.bands.members]
             } for band in user.bands]
-    
-    def get_avatar():
-        
-        return {"ok"}
