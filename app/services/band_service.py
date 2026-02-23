@@ -61,7 +61,8 @@ class BandService():
                 } for user in band.members if user.users.id == user.bands.created_by],
             "members": [{
                 'id': member.users.id, 
-                'name': member.users.name, 
+                'name': member.users.name,
+                'avatar_img':member.users.avatar_img,
                 'bands': [{
                     'id': band.bands.id, 
                     "name": band.bands.name
