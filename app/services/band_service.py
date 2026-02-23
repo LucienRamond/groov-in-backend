@@ -1,3 +1,5 @@
+import datetime
+
 from model.band_members import BandMembers
 from model.user import User
 from server import db
@@ -103,6 +105,7 @@ class BandService():
 
         band.name = band_data["name"]
         band.description = band_data["description"]
+        band.updated_at = datetime.datetime.now()
         
         db.session.commit()
         

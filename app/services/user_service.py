@@ -102,6 +102,7 @@ class UserService():
         user.email = user_data["email"]
         user.description = user_data["description"]
         user.avatar_img = user_data["avatar_img"]
+        user.updated_at = datetime.datetime.now()
 
         db.session.commit()
 
