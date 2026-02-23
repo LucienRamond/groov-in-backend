@@ -1,3 +1,5 @@
+import datetime
+
 from server import db
 
 class User(db.Model):
@@ -9,6 +11,8 @@ class User(db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     bands = db.relationship('BandMembers', uselist=True, backref='users')
     instruments = db.relationship('UserInstruments', uselist=True, backref='users')
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.now(), onupdate=datetime.datetime.now(), nullable=False)
 
     def __repr__(self):
         return f"User(name={self.name}, email={self.email}, bands={self.bands}, instruments={self.instruments})"

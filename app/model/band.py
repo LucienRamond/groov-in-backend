@@ -1,3 +1,5 @@
+import datetime
+
 from server import db
 
 class Band(db.Model):
@@ -6,6 +8,8 @@ class Band(db.Model):
     description = db.Column(db.String(255), nullable=True)
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     members = db.relationship('BandMembers', uselist=True, backref='bands', cascade="all, delete")
+    created_at = db.Column(db.DateTime, default=datetime.datetime.now(), nullable=False)
+    updated_at = db.Column(db.DateTime, default=datetime.datetime.now(), onupdate=datetime.datetime.now(), nullable=False)
 
     def __repr__(self):
         return str(self.id)
